@@ -39,7 +39,6 @@ fetch(url, {
 //  2.Compute the Keccak-256 hash of the canonical form.
 //  3.Take the first 4 bytes of the hash as the function signature.
 
-
 const functionName = 'helloWorld()';
 const functionHash = web3.utils.keccak256(functionName);
 const functionSignature = functionHash.slice(0, 10); // First 4 bytes, equivalent to 8 characters in the hexadecimal representation

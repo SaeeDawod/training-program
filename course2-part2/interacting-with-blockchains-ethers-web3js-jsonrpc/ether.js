@@ -10,8 +10,6 @@ const transaction = {
 const tx = await signer.sendTransaction(transaction);
 console.log('Transaction Hash:', tx.hash);
 
-
-
 //contract interaction 
 import { JsonRpcProvider, Contract } from 'ethers';
 import contractABI from './contractABI.json';
