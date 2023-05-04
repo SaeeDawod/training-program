@@ -46,7 +46,7 @@ contract ExploitableFallback {
         // Complex logic here
     }
 }
-
+//Aritmethic 
 // In this exploitable example, 
 //the contract uses unchecked arithmetic operations, 
 //which can lead to integer overflows and underflows.
