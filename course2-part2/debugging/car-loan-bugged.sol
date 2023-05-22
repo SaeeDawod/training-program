@@ -21,14 +21,14 @@ contract CarLoan {
     function approveLoan(address _borrower) public {
         Loan storage loan = loans[_borrower];
         require(loan.amount > 0, "Loan request not found.");
-        require(loan.collateral > loan.amount * 2, "Insufficient collateral."); // Bug 1: Incorrect collateral check
+        require(loan.collateral > loan.amount * 2, "Insufficient collateral."); // Introduced Bug 1: Incorrect collateral check
         loan.approved = true;
     }
 
     function repayLoan() public payable {
         Loan storage loan = loans[msg.sender];
         require(loan.approved, "Loan not approved.");
-        uint256 repaymentAmount = loan.amount * (100 + loan.interestRate) / 100; // Bug 2: Incorrect interest rate calculation
+        uint256 repaymentAmount = loan.amount * loan.interestRate / 100; // Introduced Bug 2: Incorrect interest rate calculation
         require(msg.value == repaymentAmount, "Incorrect repayment amount.");
         loan.repaid = true;
     }
