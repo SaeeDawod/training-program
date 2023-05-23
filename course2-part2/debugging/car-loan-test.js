@@ -1,37 +1,60 @@
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
 
-describe("CarLoan", function () {
-  let CarLoan;
-  let carLoan;
-  let owner, borrower, addr1, addr2;
+describe("CarLoan", function() {
+    let carLoan;
+    let owner;
+    let borrower;
 
-  beforeEach(async function () {
-    CarLoan = await ethers.getContractFactory("CarLoan");
-    [owner, borrower, addr1, addr2] = await ethers.getSigners();
-    carLoan = await CarLoan.deploy();
-  });
+    beforeEach(async function() {
+      const CarLoan = await ethers.getContractFactory("CarLoan");
+      [owner, borrower, _] = await ethers.getSigners();
+      carLoan = await CarLoan.connect(owner).deploy(ethers.utils.parseEther("1000000"), 5);
+    });
 
-  it("Should request, approve, and repay a loan successfully", async function () {
-    const loanAmount = ethers.utils.parseEther("10");
-    const collateral = ethers.utils.parseEther("15");
+    describe("requestLoan", function() {
+        it("Should successfully request a loan", async function() {
+            await carLoan.connect(borrower).requestLoan(ethers.utils.parseEther("1"), ethers.utils.parseEther("2"));
+            const loan = await carLoan.loans(borrower.address);
+            expect(loan.amount).to.equal(ethers.utils.parseEther("1"));
+            expect(loan.interestRate).to.equal(5);
+            expect(loan.collateral).to.equal(ethers.utils.parseEther("2"));
+            expect(loan.approved).to.be.false;
+            expect(loan.repaid).to.be.false;
+        });
 
-    // Request a loan
-    await carLoan.connect(borrower).requestLoan(loanAmount, collateral);
-    const requestedLoan = await carLoan.loans(borrower.address);
-    expect(requestedLoan.amount).to.equal(loanAmount);
-    expect(requestedLoan.collateral).to.equal(collateral);
-    expect(requestedLoan.approved).to.equal(false);
+        it("Should not allow to request another loan before repaying the current one", async function() {
+            await carLoan.connect(borrower).requestLoan(ethers.utils.parseEther("1"), ethers.utils.parseEther("2"));
+            await expect(carLoan.connect(borrower).requestLoan(ethers.utils.parseEther("1"), ethers.utils.parseEther("2"))).to.be.revertedWith("Existing loan must be repaid first.");
+        });
+    });
 
-    // Approve the loan
-    await carLoan.connect(owner).approveLoan(borrower.address);
-    const approvedLoan = await carLoan.loans(borrower.address);
-    expect(approvedLoan.approved).to.equal(true);
+    describe("approveLoan", function() {
+        it("Should successfully approve a loan", async function() {
+            await carLoan.connect(borrower).requestLoan(ethers.utils.parseEther("1"), ethers.utils.parseEther("2"));
+            await carLoan.connect(owner).approveLoan(borrower.address);
+            const loan = await carLoan.loans(borrower.address);
+            expect(loan.approved).to.be.true;
+        });
+    });
 
-    // Repay the loan
-    const repaymentAmount = loanAmount.add(loanAmount.mul(requestedLoan.interestRate).div(100));
-    await carLoan.connect(borrower).repayLoan({ value: repaymentAmount });
-    const repaidLoan = await carLoan.loans(borrower.address);
-    expect(repaidLoan.repaid).to.equal(true);
-  });
+    describe("repayLoan", function() {
+        it("Should successfully repay a loan", async function() {
+            await carLoan.connect(borrower).requestLoan(ethers.utils.parseEther("1"), ethers.utils.parseEther("2"));
+            await carLoan.connect(owner).approveLoan(borrower.address);
+            await carLoan.connect(borrower).repayLoan({ value: ethers.utils.parseEther("1.05") });
+            const loan = await carLoan.loans(borrower.address);
+            expect(loan.repaid).to.be.true;
+        });
+
+        it("Should not allow to repay an unapproved loan", async function() {
+            await carLoan.connect(borrower).requestLoan(ethers.utils.parseEther("1"), ethers.utils.parseEther("2"));
+            await expect(carLoan.connect(borrower).repayLoan({ value: ethers.utils.parseEther("1.05") })).to.be.revertedWith("Loan not approved.");
+        });
+
+        it("Should not allow to repay with incorrect amount", async function() {
+            await carLoan.connect(borrower).requestLoan(ethers.utils.parseEther("1"), ethers.utils.parseEther("2"));
+            await carLoan.connect(owner).approveLoan(borrower.address);
+            await expect(carLoan.connect(borrower).repayLoan({ value: ethers.utils.parseEther("1") })).to.be.revertedWith("Incorrect repayment amount.");
+        });
+    });
 });
