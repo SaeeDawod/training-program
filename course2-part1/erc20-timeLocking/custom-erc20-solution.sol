@@ -5,27 +5,34 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract MyToken is ERC20 {
-    constructor(uint256 initialSupply) ERC20("MyToken", "MTK") {
-        // Mint the initial supply to msg.sender.
-        _mint(msg.sender, initialSupply);
+    address public owner;
+    mapping(address => bool) public whitelist;
+
+    constructor() ERC20("MyToken", "MTK") {
+        owner = msg.sender;
+        _mint(address(this), 10);
     }
 
     // Implement the transfer function.
-    // This function allows a user to transfer a specified amount of tokens to another user.
     function transferTokens(address recipient, uint256 amount) public {
         _transfer(msg.sender, recipient, amount);
     }
 
-    // Implement the burn function.
-    // This function allows a user to burn (destroy) a specified amount of their own tokens.
-    function burnTokens(uint256 amount) public {
-        _burn(msg.sender, amount);
+    // Implement the burnFrom function.
+    function burnFrom(address account, uint256 amount) public {
+        require(msg.sender == owner, "Only the contract owner can burn tokens from any account.");
+        _burn(account, amount);
     }
 
-    // Implement the burnFrom function.
-    // This function allows an approved spender to burn a specified amount of tokens on behalf of the token owner.
-    function burnFromTokens(address account, uint256 amount) public {
-        require(msg.sender == account || allowance(account, msg.sender) >= amount, "ERC20: burn amount exceeds allowance");
-        _burn(account, amount);
+    // Implement the addToWhitelist function.
+    function addToWhitelist(address account) public {
+        require(msg.sender == owner, "Only the contract owner can add to the whitelist.");
+        whitelist[account] = true;
+    }
+
+    // Implement the withdrawToken function.
+    function withdrawToken() public {
+        require(whitelist[msg.sender], "You must be whitelisted to withdraw a token.");
+        _transfer(address(this), msg.sender, 1);
     }
 }
