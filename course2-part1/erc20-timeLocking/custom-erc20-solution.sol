@@ -1,28 +1,31 @@
-// SPDX-License-Identifier: MIT
+// contracts/MyToken.sol
+
 pragma solidity ^0.8.0;
+
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
 
-contract MyToken is Context, ERC20 {
-    uint256 private _totalSupply;
-    uint256 private _releaseAmount;
-    uint256 private _lastReleaseTime;
-
-    constructor(
-        string memory name,
-        string memory symbol,
-        uint256 totalSupply,
-        uint256 releaseAmount
-    ) ERC20(name, symbol) {
-        // implement the constructor logic
+contract MyToken is ERC20 {
+    constructor(uint256 initialSupply) ERC20("MyToken", "MTK") {
+        // Mint the initial supply to msg.sender.
+        _mint(msg.sender, initialSupply);
     }
 
-    //   TODO:  implement the totalSupply function
+    // Implement the transfer function.
+    // This function allows a user to transfer a specified amount of tokens to another user.
+    function transferTokens(address recipient, uint256 amount) public {
+        _transfer(msg.sender, recipient, amount);
+    }
 
-    //   TODO:  implement the releaseAmount function
+    // Implement the burn function.
+    // This function allows a user to burn (destroy) a specified amount of their own tokens.
+    function burnTokens(uint256 amount) public {
+        _burn(msg.sender, amount);
+    }
 
-    //   TODO:  implement the _lastReleaseTime function
-
-    //   TODO:  implement the releaseFunction function
-
+    // Implement the burnFrom function.
+    // This function allows an approved spender to burn a specified amount of tokens on behalf of the token owner.
+    function burnFromTokens(address account, uint256 amount) public {
+        require(msg.sender == account || allowance(account, msg.sender) >= amount, "ERC20: burn amount exceeds allowance");
+        _burn(account, amount);
+    }
 }
