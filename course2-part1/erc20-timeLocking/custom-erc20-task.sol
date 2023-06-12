@@ -1,31 +1,37 @@
-// SPDX-License-Identifier: MIT
+// contracts/MyToken.sol
+
 pragma solidity ^0.8.0;
+
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
-contract MyToken is Context, ERC20 {
-    uint256 private _totalSupply;
-    uint256 private _releaseAmount;
-    uint256 private _lastReleaseTime;
-    constructor(string memory name, string memory symbol, uint256 totalSupply, uint256 releaseAmount) ERC20(name, symbol) {
-        _totalSupply = totalSupply;
-        _releaseAmount = releaseAmount;
-        _lastReleaseTime = block.timestamp;
-        _mint(_msgSender(), totalSupply);
+
+contract MyToken is ERC20 {
+    constructor(uint256 initialSupply) ERC20("MyToken", "MTK") {
+        // TO DO: Mint the initial supply to msg.sender.
+        // Hint: Use the _mint() function provided by the ERC20 contract.
+        // The _mint() function requires two parameters: the recipient of the tokens and the amount.
     }
-    function totalSupply() public view virtual override returns (uint256) {
-        return _totalSupply;
+
+    // TO DO: Implement the transfer function.
+    // This function should allow a user to transfer a specified amount of tokens to another user.
+    // Hint: Use the _transfer() function provided by the ERC20 contract.
+    // The _transfer() function requires three parameters: the sender, the recipient, and the amount.
+    function transferTokens(address recipient, uint256 amount) public {
+        // your code here
     }
-    function releaseAmount() public view returns (uint256) {
-        return _releaseAmount;
+
+    // TO DO: Implement the burn function.
+    // This function should allow a user to burn (destroy) a specified amount of their own tokens.
+    // Hint: Use the _burn() function provided by the ERC20 contract.
+    // The _burn() function requires two parameters: the burner's address and the amount to burn.
+    function burnTokens(uint256 amount) public {
+        // your code here
     }
-    function lastReleaseTime() public view returns (uint256) {
-        return _lastReleaseTime;
-    }
-    function release() public virtual {
-        require(block.timestamp >= _lastReleaseTime + 30 days, "MyToken: release not allowed yet");
-        require(_releaseAmount > 0, "MyToken: release amount must be greater than 0");
-        require(balanceOf(address(this)) >= _releaseAmount, "MyToken: insufficient balance for release");
-        _lastReleaseTime = block.timestamp;
-        _transfer(address(this), _msgSender(), _releaseAmount);
+
+    // TO DO: Implement the burnFrom function.
+    // This function should allow an approved spender to burn a specified amount of tokens on behalf of the token owner.
+    // Hint: Use the _burn() function provided by the ERC20 contract.
+    // The _burn() function requires two parameters: the owner's address and the amount to burn.
+    function burnFromTokens(address account, uint256 amount) public {
+        // your code here
     }
 }
