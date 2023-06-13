@@ -26,7 +26,6 @@ contract ExploitableAccessControl {
     }
 }
 
-
 //Pull Payment Pattern
 //In this exploitable example, the contract pushes payments to recipients, which can lead to denial-of-service attacks if a malicious recipient prevents the contract from sending payments.
 contract ExploitablePushPayment {

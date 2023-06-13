@@ -51,18 +51,8 @@ contract SecurePullPayment {
 //Fallback Functions
 //The secure example uses a simple fallback function with minimal logic, reducing the risk of potential issues and vulnerabilities.
 contract SecureFallback {
-    function withdraw() external {
-        uint256 amount = address(this).balance;
-        (bool success, ) = msg.sender.call{value: amount}("");
-        require(success, "Withdrawal failed");
-    }
-
     fallback() external payable {
         // Minimal logic here
-        if (msg.sender != tx.origin) {
-            // Prevent indirect calls
-            return;
-        }
     }
 }
 
