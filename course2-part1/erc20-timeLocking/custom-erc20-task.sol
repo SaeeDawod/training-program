@@ -10,6 +10,7 @@ contract MyToken is ERC20 {
 
     constructor() ERC20("MyToken", "MTK") {
         owner = msg.sender;
+<<<<<<< HEAD
         _mint(address(this), 10);
     }
 

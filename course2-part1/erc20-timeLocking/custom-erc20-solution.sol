@@ -10,14 +10,29 @@ contract MyToken is ERC20 {
 
     constructor() ERC20("MyToken", "MTK") {
         owner = msg.sender;
-        // TO DO: Mint 10 tokens to this contract.
+        _mint(address(this), 10);
     }
 
-    // TO DO: Implement the transfer function.
+    // Implement the transfer function.
+    function transferTokens(address recipient, uint256 amount) public {
+        _transfer(msg.sender, recipient, amount);
+    }
 
-    // TO DO: Implement the burnFrom function.
+    // Implement the burnFrom function.
+    function burnFrom(address account, uint256 amount) public {
+        require(msg.sender == owner, "Only the contract owner can burn tokens from any account.");
+        _burn(account, amount);
+    }
 
-    // TO DO: Implement the addToWhitelist function.
+    // Implement the addToWhitelist function.
+    function addToWhitelist(address account) public {
+        require(msg.sender == owner, "Only the contract owner can add to the whitelist.");
+        whitelist[account] = true;
+    }
 
-    // TO DO: Implement the withdrawToken function.
+    // Implement the withdrawToken function.
+    function withdrawToken() public {
+        require(whitelist[msg.sender], "You must be whitelisted to withdraw a token.");
+        _transfer(address(this), msg.sender, 1);
+    }
 }
