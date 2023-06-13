@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        #feedback {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+        }
+        #player-turn {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="feedback">Tic Tac Toe</div>
+    <div id="player-turn"> </div>
+    <div id="board"></div>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <script>
+        (async () => {
+            // Replace with your contract address
+            const contractAddress = "0x686497408BDB2Ed17D730bE91714C0168b957e9d";
+
+            // Replace with your contract ABI
+            const contractABI = [
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_player2",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "winner",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "GameEnded",
+                    "type": "event"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint8",
+                            "name": "_x",
+                            "type": "uint8"
+                        },
+                        {
+                            "internalType": "uint8",
+                            "name": "_y",
+                            "type": "uint8"
+                        }
+                    ],
+                    "name": "makeMove",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "player",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint8",
+                            "name": "x",
+                            "type": "uint8"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint8",
+                            "name": "y",
+                            "type": "uint8"
+                        }
+                    ],
+                    "name": "TurnEnded",
+                    "type": "event"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "board",
+                    "outputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "gameOver",
+                    "outputs": [
+                        {
+                            "internalType": "bool",
+                            "name": "",
+                            "type": "bool"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getBoard",
+                    "outputs": [
+                        {
+                            "internalType": "uint256[3][3]",
+                            "name": "",
+                            "type": "uint256[3][3]"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "player1",
+                    "outputs": [
+                        {
+                            "internalType": "address",
+                            "name": "",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "player1Turn",
+                    "outputs": [
+                        {
+                            "internalType": "bool",
+                            "name": "",
+                            "type": "bool"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "player2",
+                    "outputs": [
+                        {
+                            "internalType": "address",
+                            "name": "",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                }
+            ];
+
+            // Create a new provider and set it as the default
+            // Create a new provider and set it as the default
+            const provider = new ethers.providers.JsonRpcProvider('https://rpc.ankr.com/polygon_mumbai');
+
+            console.log('provider', provider);
+
+            // Hardcoded private key
+            // const privateKey = "9b30a6fd1ce87cb530d2a51bb65c1233613e127c8efb5681d381621e34c68ae6";
+             const privateKey = "be1d4269f7fa07e4f98c74a167ba5abefc899bc9242b31d12913e8f9948f273c";
+
+            const wallet = new ethers.Wallet(privateKey, provider);
+
+            // Create a new contract instance
+            const contract = new ethers.Contract(contractAddress, contractABI, wallet);
+
+            console.log(contract);
+
+            // Get players from contract
+            const player1 = await contract.player1();
+            const player2 = await contract.player2();
+
+            console.log(player1, player2);
+
+            const feedbackElement = document.getElementById("feedback");
+            const playerTurnElement = document.getElementById("player-turn");
+            // Initialize the board
+            async function initializeBoard() {
+                const gameBoard = await contract.getBoard();
+                console.log(gameBoard);
+                for (let x = 0; x < 3; x++) {
+                    for (let y = 0; y < 3; y++) {
+                        const cell = document.createElement("div");
+                        cell.id = `cell-${x}-${y}`;
+                        cell.classList.add("cell");
+
+                        const cellValue = gameBoard[x][y].toNumber(); // Convert BigNumber to number
+                        if (cellValue === 1) {
+                            cell.textContent = "X";
+                        } else if (cellValue === 2) {
+                            cell.textContent = "O";
+                        }
+
+                        document.getElementById("board").appendChild(cell);
+
+                        // Add event listener to each cell
+                        cell.addEventListener("click", async () => {
+                            // Check if it's the player's turn
+                            const isPlayer1Turn = await contract.player1Turn();
+                            if ((isPlayer1Turn && player1 !== wallet.address) || (!isPlayer1Turn && player2 !== wallet.address)) {
+                                feedbackElement.textContent = "It's not your turn!";
+                                return;
+                            }
+
+                            feedbackElement.textContent = "Processing move...";
+                            try {
+                                const [x, y] = cell.id.split("-").slice(1).map(Number);
+                                const tx = await contract.makeMove(x, y, { gasLimit: 10000000 });
+                                await tx.wait();
+                                feedbackElement.textContent = "Move successful!";
+                            } catch (error) {
+                                console.error(error);
+                                feedbackElement.textContent = "Move failed!";
+                            }
+                        });
+                    }
+                }
+            }
+
+            await initializeBoard();
+
+            // Listen for TurnEnded events
+            contract.on("TurnEnded", (player, x, y) => {
+                // Update the UI with the new move
+                console.log('player turn', player);
+                const cell = document.getElementById(`cell-${x}-${y}`);
+                updatePlayerTurn()
+                cell.textContent = player === player1 ? "X" : "O";
+            });
+
+            // Listen for GameEnded events
+            contract.on("GameEnded", (winner) => {
+                // Announce the winner
+                alert(`Game Over! The winner is ${winner === player1 ? "Player 1" : "Player 2"}`);
+            });
+
+            // Update the player turn element
+            async function updatePlayerTurn() {
+                const isPlayer1Turn = await contract.player1Turn();
+                const currentPlayer = isPlayer1Turn ? "Player 1" : "Player 2";
+                console.log(isPlayer1Turn);
+                playerTurnElement.innerText = `Current turn: ${currentPlayer}`;
+            }
+
+            // Update the player turn element initially
+            await updatePlayerTurn();
+
+            // Listen for TurnEnded events to update player turn
+            contract.on("TurnEnded", () => {
+                updatePlayerTurn();
+            });
+        })();
+    </script>
+</body>
+
+</html>
