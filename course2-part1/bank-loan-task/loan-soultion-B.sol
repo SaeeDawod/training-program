@@ -46,7 +46,6 @@ contract SimpleBankSystem {
     function getBalance() public view onlyAccountOwner(msg.sender) returns (uint256) {
         return accounts[msg.sender].balance;
     }
-
     // Loan management functions
   function createLoan(uint256 amount) public onlyAccountOwner(msg.sender) {
         require(accounts[msg.sender].balance >= amount, "Insufficient balance.");
@@ -55,14 +54,12 @@ contract SimpleBankSystem {
         accounts[msg.sender].balance -= amount;
     }
 
-
 function repayLoan(uint256 loanId, uint256 amount) public onlyAccountOwner(accounts[loans[loanId].owner].owner) {
     require(accounts[msg.sender].balance >= amount, "Insufficient balance.");
     require(loans[loanId].outstandingBalance >= amount, "Loan amount is less than amount to repay.");
     loans[loanId].outstandingBalance -= amount;
     accounts[msg.sender].balance -= amount;
 }
-
 
     function getOutstandingBalance(uint256 loanId) public view returns (uint256) {
         return loans[loanId].outstandingBalance;

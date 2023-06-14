@@ -2,8 +2,8 @@ const { ethers } = require("hardhat");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const HardHatDemo = await ethers.getContractFactory("HardHatDemo");
-  const contract = await HardHatDemo.connect(deployer).deploy(10);
+  const HardHatDemo = await ethers.getContractFactory("contract name");
+  const contract = await HardHatDemo.connect(deployer).deploy(args amount);
 
   console.log(contract);
   
