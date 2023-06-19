@@ -2,6 +2,8 @@ import { HardhatUserConfig } from 'hardhat/types';
 import '@nomiclabs/hardhat-ethers';
 import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
+import "@nomiclabs/hardhat-etherscan";
+
 require('./tasks/decrement-counter');
 require('./tasks/increment-counter');
 
@@ -18,10 +20,13 @@ const config: HardhatUserConfig = {
         mnemonic: "test test test test test test test test test test test junk",
       },
     },
-  },  namedAccounts: {
+  }, namedAccounts: {
     deployer: {
       default: 0,
     },
+  },
+  etherscan: {
+    apiKey: "",
   },
 };
 
