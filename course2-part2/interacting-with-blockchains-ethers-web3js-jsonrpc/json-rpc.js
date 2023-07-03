@@ -4,7 +4,7 @@ const headers = { 'Content-Type': 'application/json' };
 
 const contractAddress = '0xYourContractAddress';
 const fromAddress = '0xYourAddress';
-const functionSignature = '0x6d4ce63c'; // This is the 4-byte function signature for the `get()` function
+const functionSignature = '0x6d4ce63c'; // This is a 4-byte function signature
 
 const payload = {
   jsonrpc: '2.0',
@@ -48,7 +48,7 @@ const headers = { 'Content-Type': 'application/json' };
 
 const contractAddress = '0xYourContractAddress';
 const fromAddress = '0xYourAddress';
-const functionSignature = '0x6d4ce63c'; // This is the 4-byte function signature for the `get()` function
+const functionSignature = '0x6d4ce63c';
 
 const payload = {
   jsonrpc: '2.0',
