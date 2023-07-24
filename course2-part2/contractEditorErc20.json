@@ -1,0 +1,76 @@
+[
+    {
+        "id": "cfc3eb139dc03dc5",
+        "type": "tab",
+        "label": "Contract Editor",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "0119534f2720d10a",
+        "type": "template",
+        "z": "cfc3eb139dc03dc5",
+        "name": "ContractEditor",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Smart Contract Interface</title>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/ethers/6.6.0/ethers.umd.min.js\"></script>\n    <style>\n        body {\n            background-color: #f7f7f7;\n            font-family: Arial, sans-serif;\n            margin: 20px;\n            padding: 0;\n            overflow-x: hidden;\n        }\n\n        h1 {\n            text-align: center;\n            margin-top: 20px;\n        }\n\n        .contract-section {\n            margin-top: 30px;\n        }\n\n        .contract-title {\n            color: #333;\n            font-size: 24px;\n            margin-bottom: 15px;\n            padding: 0;\n        }\n\n        .contract-functions {\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));\n            gap: 20px;\n            margin-top: 10px;\n        }\n\n        .function-card {\n            background-color: #fff;\n            border-radius: 8px;\n            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);\n            padding: 20px;\n        }\n\n        .function-title {\n            font-size: 20px;\n            font-weight: bold;\n            margin: 0 0 10px;\n            padding: 0;\n        }\n\n        .function-description {\n            color: #555;\n            margin-bottom: 10px;\n        }\n\n        .function-input {\n            display: flex;\n            align-items: center;\n            margin-bottom: 10px;\n        }\n\n        .input-label {\n            width: 120px;\n            font-weight: bold;\n            margin-right: 10px;\n        }\n\n        .input-field {\n            flex: 1;\n            border: 1px solid #ccc;\n            border-radius: 4px;\n            box-sizing: border-box;\n            font-size: 14px;\n            padding: 8px;\n        }\n\n        .function-result {\n            margin-top: 10px;\n            font-size: 14px;\n            white-space: pre-wrap;\n            overflow-y: auto;\n        }\n\n        .function-result-label {\n            margin-bottom: 5px;\n        }\n\n        .function-button {\n            background-color: #007bff;\n            border: none;\n            border-radius: 4px;\n            color: #fff;\n            cursor: pointer;\n            font-size: 14px;\n            padding: 10px 20px;\n            margin-top: 10px;\n        }\n\n        .function-button:hover {\n            background-color: #0056b3;\n        }\n\n        .logs-div {\n            background-color: #222;\n            color: #fff;\n            margin: 20px auto;\n            padding: 20px;\n            border-radius: 8px;\n            position: sticky;\n            bottom: 0px;\n        }\n\n        .logs-div p {\n            margin: 5px;\n            padding: 5px;\n            line-height: 1.5;\n            overflow-x: auto;\n        }\n\n        .error-message {\n            background-color: #f44336;\n            border-radius: 4px;\n            color: white;\n            margin-top: 10px;\n            padding: 10px;\n            overflow-x: auto;\n        }\n\n        .error-message button {\n            background-color: transparent;\n            border: none;\n            color: white;\n            cursor: pointer;\n            font-size: 16px;\n            line-height: 1;\n            padding: 0;\n            position: absolute;\n            top: 5px;\n            right: 5px;\n        }\n    </style>\n</head>\n\n<body>\n    <h1>Contract Editor</h1>\n<h2>Contract : {{payload.contractAddress}}</h2>\n    <div class=\"contract-section\">\n        <h2 class=\"contract-title\">Read-only Functions</h2>\n        <div class=\"contract-functions\" id=\"readFunctions\"></div>\n    </div>\n\n    <div class=\"contract-section\">\n        <h2 class=\"contract-title\">Write Functions</h2>\n        <div class=\"contract-functions\" id=\"writeFunctions\"></div>\n    </div>\n\n    <div class=\"logs-div\" id=\"logsDiv\"></div>\n\n    <script>\n      \n\n        window.onload = async function () {\n        \n        const contractAddress = '{{{payload.contractAddress}}}'; // Contract address placeholder\n        const privateKey = '{{{payload.privateKey}}}'; // Private key placeholder\n        const abi = JSON.parse('{{{payload.abi}}}'); // ABI placeholder\n\n            const provider = new ethers.JsonRpcProvider('{{{payload.jsonRpc}}}');\n            const wallet = new ethers.Wallet(privateKey, provider);\n    const contract = new ethers.Contract(contractAddress, abi, wallet);\n\n    const readFunctionsDiv = document.getElementById('readFunctions');\n    const writeFunctionsDiv = document.getElementById('writeFunctions');\n    const logsDiv = document.getElementById('logsDiv');\n\n    function formatResult(result) {\n    if (typeof result === 'bigint') {\n        return result.toString();\n    }\n    if (Array.isArray(result)) {\n        return result.map(formatResult);\n    }\n    if (typeof result === 'object') {\n        const formattedResult = {};\n        for (const key in result) {\n            formattedResult[key] = formatResult(result[key]);\n        }\n        return formattedResult;\n    }\n    return result;\n}\n\n    abi.forEach((func) => {\n        if (func.type === \"function\" || func.type === \"variable\") {\n            const functionDiv = document.createElement('div');\n            functionDiv.className = 'function-card';\n\n            const functionName = document.createElement('h3');\n            functionName.className = 'function-title';\n            functionName.textContent = func.name;\n            functionDiv.appendChild(functionName);\n\n            const functionDescription = document.createElement('p');\n            functionDescription.className = 'function-description';\n            functionDescription.textContent = func.stateMutability === 'view' ? 'Read-only function' : 'Write function';\n            functionDiv.appendChild(functionDescription);\n\n            const inputFields = [];\n            if (func.inputs && func.inputs.length > 0) {\n                func.inputs.forEach((input) => {\n                    const inputContainer = document.createElement('div');\n                    inputContainer.className = 'function-input';\n\n                    const inputLabel = document.createElement('label');\n                    inputLabel.className = 'input-label';\n                    inputLabel.textContent = input.name + ' (' + input.type + '): ';\n                    inputContainer.appendChild(inputLabel);\n\n                    const inputField = document.createElement('input');\n                    inputField.className = 'input-field';\n                    inputField.setAttribute('name', func.name + '_' + input.name);\n                    inputContainer.appendChild(inputField);\n\n                    inputFields.push(inputField);\n\n                    functionDiv.appendChild(inputContainer);\n                });\n            }\n\n            const resultMessage = document.createElement('div');\n            resultMessage.className = 'function-result';\n            resultMessage.id = func.name + '_result';\n            functionDiv.appendChild(resultMessage);\n\n            const callButton = document.createElement('button');\n            callButton.className = 'function-button';\n            callButton.textContent = 'Call';\n            callButton.onclick = async function () {\n                const args = inputFields.map(inputField => inputField.value);\n                try {\n                    let result;\n                    if (func.stateMutability === 'view') {\n                        resultMessage.textContent = 'Loading...';\n                        result = await contract[func.name](...args);\n                        resultMessage.textContent = 'Result:\\n' + formatResult(result);\n                    } else {\n                        resultMessage.textContent = 'Loading...';\n                        const tx = await contract[func.name](...args);\n                        const logMessage = document.createElement('p');\n                        logMessage.textContent = 'Transaction hash: ' + tx.hash + ', Args: ' + JSON.stringify(args) + ', Function: ' + func.name;\n                        logsDiv.appendChild(logMessage);\n                        resultMessage.textContent = 'Transaction sent. Waiting for confirmation...';\n                        await tx.wait();\n                        resultMessage.textContent = 'Transaction confirmed for ' + func.name;\n\n                        // Display complete transaction object in logs\n                        const txObjectMessage = document.createElement('p');\n                        txObjectMessage.textContent = 'Transaction object: ' + JSON.stringify(tx);\n                        logsDiv.appendChild(txObjectMessage);\n                    }\n                } catch (err) {\n                    const errorMessage = document.createElement('div');\n                    errorMessage.className = 'error-message';\n                    errorMessage.textContent = 'Error for ' + func.name + ': ' + err.message;\n                    const dismissButton = document.createElement('button');\n                    dismissButton.textContent = 'X';\n                    dismissButton.onclick = function () {\n                        functionDiv.removeChild(errorMessage);\n                    };\n                    errorMessage.appendChild(dismissButton);\n                    functionDiv.appendChild(errorMessage);\n                }\n            };\n\n            functionDiv.appendChild(callButton);\n\n            if (func.stateMutability === 'view') {\n                readFunctionsDiv.appendChild(functionDiv);\n            } else {\n                writeFunctionsDiv.appendChild(functionDiv);\n            }\n        }\n    });\n};\n    </script>\n</body>\n\n</html>",
+        "output": "str",
+        "x": 660,
+        "y": 300,
+        "wires": [
+            [
+                "a52e534fe124b0d5"
+            ]
+        ]
+    },
+    {
+        "id": "a52e534fe124b0d5",
+        "type": "http response",
+        "z": "cfc3eb139dc03dc5",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 830,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "3944e3fbedb2ac27",
+        "type": "http in",
+        "z": "cfc3eb139dc03dc5",
+        "name": "",
+        "url": "/contractEditor",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 200,
+        "y": 300,
+        "wires": [
+            [
+                "15e052d0b38acb4f"
+            ]
+        ]
+    },
+    {
+        "id": "15e052d0b38acb4f",
+        "type": "function",
+        "z": "cfc3eb139dc03dc5",
+        "name": "Set Information",
+        "func": "const privateKey = '0x88796b50f15a3934f0b85aac30cf9dbc91f81dc9f00c67c44d8a34b5fad950fc';\nconst contractAddress = '0xf4Df742D502A294eA0B2712B5b61D575E3DAe788';\nconst jsonRpc = 'https://training-program-besu-node-1-2fa5.gke-europe.settlemint.com/bpaas-925E6eFe21a3aEDaA8043DA6D12ed8AAf59F8F7d'\nconst abi = [\n    {\n        \"inputs\": [],\n        \"stateMutability\": \"nonpayable\",\n        \"type\": \"constructor\"\n    },\n    {\n        \"inputs\": [],\n        \"name\": \"greetingMessage\",\n        \"outputs\": [\n            {\n                \"internalType\": \"string\",\n                \"name\": \"\",\n                \"type\": \"string\"\n            }\n        ],\n        \"stateMutability\": \"view\",\n        \"type\": \"function\"\n    },\n    {\n        \"inputs\": [\n            {\n                \"internalType\": \"string\",\n                \"name\": \"name\",\n                \"type\": \"string\"\n            }\n        ],\n        \"name\": \"setGreetings\",\n        \"outputs\": [\n            {\n                \"internalType\": \"string\",\n                \"name\": \"\",\n                \"type\": \"string\"\n            }\n        ],\n        \"stateMutability\": \"nonpayable\",\n        \"type\": \"function\"\n    }\n]\n\nconst templatePayload = {\n    contractAddress: contractAddress,\n    privateKey: privateKey,\n    abi: JSON.stringify(abi),\n    jsonRpc: jsonRpc\n};\n\nmsg.payload = templatePayload;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 300,
+        "wires": [
+            [
+                "0119534f2720d10a"
+            ]
+        ]
+    }
+]
